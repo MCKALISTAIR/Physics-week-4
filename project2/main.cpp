@@ -28,8 +28,9 @@
 #include "Body.h"
 
 // time
-GLfloat deltaTime = 0.0f;
-GLfloat lastFrame = 0.0f;
+const double dtime = 0.01;
+double currentTime = glfwGetTime();
+double accumulator = 0.0f;
 
 
 
@@ -75,26 +76,30 @@ int main()
 	while (!glfwWindowShouldClose(app.getWindow()))
 	{
 		// Set frame time
-		GLfloat currentFrame = (GLfloat)  glfwGetTime() - firstFrame;
+		///GLfloat currentFrame = (GLfloat)  glfwGetTime() - firstFrame;
+		//// Set frame time
+		double newTime = glfwGetTime();
+		double frameTime = newTime - currentTime;
+		currentTime = newTime;
+		accumulator += frameTime;
 		// the animation can be sped up or slowed down by multiplying currentFrame by a factor.
-		currentFrame *= 1.5f;
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		
 
 		/*
 		**	INTERACTION
 		*/
 		// Manage interaction
-		app.doMovement(deltaTime);
+		app.doMovement(dtime);
 
-
+		while (accumulator > dtime)
+		{
 		/*
 		**	SIMULATION
 		*/
 		force = mass * g;
 		acc = force / mass;
-		v = v + (deltaTime * acc);
-		p = p + (deltaTime * v);
+		v = v + (dtime * acc);
+		p = p + (dtime * v);
 
 
 		particle1.setPos(p);
@@ -111,7 +116,8 @@ int main()
 		}
 
 		
-		
+		accumulator -= dtime;
+	}
 
 
 		particle1.setPos(p);
