@@ -1,4 +1,6 @@
 #pragma once
+#define GLEW_STATIC
+
 // Math constants
 #define _USE_MATH_DEFINES
 #include <cmath>  
@@ -52,7 +54,7 @@ int main()
 	Particle particle1 = Particle::Particle();
 	//scale it down (x.1), translate it up by 2.5 and rotate it by 90 degrees around the x axis
 	particle1.translate(glm::vec3(0.0f, 2.5f, 0.0f));
-	particle1.scale(glm::vec3(.1f, .1f, .1f));
+	particle1.scale(glm::vec3(4.1f, 4.1f, 4.1f));
 	particle1.rotate((GLfloat) M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
 	particle1.getMesh().setShader(Shader("resources/shaders/core.vert", "resources/shaders/core_blue.frag"));
 	
@@ -121,7 +123,7 @@ int main()
 		// draw groud plane
 		app.draw(plane);
 		// draw particles
-		//app.draw(particle1);				
+		app.draw(particle1.getMesh());				
 
 		app.display();
 	}

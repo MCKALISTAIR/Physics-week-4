@@ -1,6 +1,7 @@
+#define GLEW_STATIC
 #include <memory>
 #include <functional>
-
+#include "Application.h"
 // GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -8,7 +9,7 @@
 #include <glm/gtx/matrix_operation.hpp>
 #include "glm/ext.hpp"
 
-#include "Application.h"
+
 
 
 int Application::SCREEN_WIDTH = 0;
