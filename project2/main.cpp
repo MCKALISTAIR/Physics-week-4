@@ -27,8 +27,9 @@
 #include "Particle.h"
 #include "Body.h"
 
-// time
+
 const double dtime = 0.01;
+
 double currentTime = glfwGetTime();
 double accumulator = 0.0f;
 
@@ -50,15 +51,22 @@ int main()
 	
 	
 	
-	// create particle
+	// create particle's
 	
 	Particle particle1 = Particle::Particle();
+	Particle particle2 = Particle::Particle();
+	Particle particle3 = Particle::Particle();
+	Particle particle4 = Particle::Particle();
 	//scale it down (x.1), translate it up by 2.5 and rotate it by 90 degrees around the x axis
 	particle1.translate(glm::vec3(0.0f, 2.5f, 0.0f));
 	particle1.scale(glm::vec3(4.1f, 4.1f, 4.1f));
 	particle1.rotate((GLfloat) M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
 	particle1.getMesh().setShader(Shader("resources/shaders/core.vert", "resources/shaders/core_blue.frag"));
 	
+	particle2.scale(glm::vec3(5.0f, 5.0f, 5.0f));
+	particle2.translate(glm::vec3(0.0f, 1.0f, 0.0f));
+	particle2.rotate((GLfloat)M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
+	particle2.getMesh().setShader(Shader("resources/shaders/core.vert", "resources/shaders/core_blue.frag"));
 	//Add vectors for particle movement
 	glm::vec3 p = glm::vec3(0.0f, 5.0f, 0.0f);
 	glm::vec3 v = glm::vec3(1.0f, 2.0f, 0.0f);
