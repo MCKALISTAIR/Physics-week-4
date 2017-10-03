@@ -15,7 +15,7 @@ public:
 	*/
 	// mesh
 	Mesh& getMesh() { return m_mesh; }
-	std::vector <Force*> getForces() { return m_forces; }
+
 	
 	// transform matrices
 	glm::mat4 getTranslate() const { return m_mesh.getTranslate(); }
@@ -32,13 +32,26 @@ public:
 	float getMass() const { return m_mass; }
 	float getCor() { return m_cor; }
 
+	//force stuff
+	std::vector <Force*> m_forces;
+	std::vector<Force*> getForces() { return m_forces; }
+	void addForce(Force *f) { m_forces.push_back(f); }
+	glm::vec3 applyForces(glm::vec3 x, glm::vec3 v, float t, float dt) {
+		 glm::vec3 fAccumulator = glm::vec3(0.0f);
+		
+			 for (auto &f : m_forces) {
+			 fAccumulator += f->apply(getMass(), x, v);
+			
+		}
+		 return fAccumulator / getMass();
+		
+	}
 	/*
 	** SET METHODS
 	*/
 	// mesh
 	void setMesh(Mesh m) { m_mesh = m; }
 	// dynamic variables
-	void addForce(Force *f) { m_forces.push_back(f); }
 	void setAcc(const glm::vec3 &vect) { m_acc = vect; }
 	void setVel(const glm::vec3 &vect) { m_vel = vect; }
 	void setVel(int i, float v) { m_vel[i] = v; } //set the ith coordinate of the velocity vector
@@ -60,7 +73,6 @@ public:
 
 private:
 	Mesh m_mesh; // mesh used to represent the body
-	glm::vec3 m_forces();
 	float m_mass; // mass
 	float m_cor; // coefficient of restitution
 	
