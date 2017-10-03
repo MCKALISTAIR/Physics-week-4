@@ -22,6 +22,7 @@
 		 public:
 			 // constructors
 				 Gravity() {}
+
 			 Gravity(const glm::vec3 &gravity) { m_gravity = gravity; }
 			
 				 // get and set methods
