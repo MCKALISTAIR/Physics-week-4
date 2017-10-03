@@ -161,6 +161,7 @@ int main()
 		//particle1.setPos(p);
 		
 		particle1.setAcc(g);
+		//particle1.setAcc(particle1.applyForces(particle1.getPos(), particle1.getVel(), currentTime, dtime));
 		particle1.setVel(particle1.getVel() + dtime*particle1.getAcc());
 		glm::vec3 move = dtime*particle1.getVel();
 		particle1.translate(move);

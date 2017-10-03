@@ -1,7 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
+#include "Force.h"
 #include "Mesh.h"
 
 class Body
@@ -15,7 +15,8 @@ public:
 	*/
 	// mesh
 	Mesh& getMesh() { return m_mesh; }
-
+	std::vector <Force*> getForces() { return m_forces; }
+	
 	// transform matrices
 	glm::mat4 getTranslate() const { return m_mesh.getTranslate(); }
 	glm::mat4 getRotate() const { return m_mesh.getRotate(); }
@@ -36,8 +37,8 @@ public:
 	*/
 	// mesh
 	void setMesh(Mesh m) { m_mesh = m; }
-
 	// dynamic variables
+	void addForce(Force *f) { m_forces.push_back(f); }
 	void setAcc(const glm::vec3 &vect) { m_acc = vect; }
 	void setVel(const glm::vec3 &vect) { m_vel = vect; }
 	void setVel(int i, float v) { m_vel[i] = v; } //set the ith coordinate of the velocity vector
@@ -59,10 +60,10 @@ public:
 
 private:
 	Mesh m_mesh; // mesh used to represent the body
-
+	glm::vec3 m_forces();
 	float m_mass; // mass
 	float m_cor; // coefficient of restitution
-
+	
 	glm::vec3 m_acc; // acceleration
 	glm::vec3 m_vel; // velocity
 	glm::vec3 m_pos; // position
