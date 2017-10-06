@@ -18,15 +18,17 @@
 		 return ag;
 }
 
- /*
-   19 ** DRAG
-   20 /*
-glm::vec3 Gravity::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel) {
+ 
+   //19 ** DRAG
+   
+	glm::vec3 Drag::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel) {
  // complete. Should return the acceleration resulting from aerodynamic drag
-		 //glm::vec3 acceleration = 0.5 * mass * (vel * vel);
-		 return acceleration;
+ // glm::vec3 ad = 0.5 * mass * (vel * vel) * 1.15 * 1;
+		 glm::vec3 Drag = 0.5 * mass * glm::dot(vel, vel) * vel / std::sqrt(glm::dot(vel, vel)) * 1.15 * 1;
+		 return Drag;
 }
 
+	 /*
 glm::vec3 Hook::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel) {
 		  // complete
 			 
