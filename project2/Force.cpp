@@ -14,7 +14,7 @@
    13 */
 	 glm::vec3 Gravity::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel) {
 	 // complete. Should return the acceleration resulting from gravity
-		 glm::vec3 ag = mass * m_gravity;
+		 glm::vec3 ag = mass * m_gravity;   // times deltatime?
 		 return ag;
 }
 
@@ -24,7 +24,7 @@
 glm::vec3 Gravity::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel) {
  // complete. Should return the acceleration resulting from aerodynamic drag
 		 //glm::vec3 acceleration = 0.5 * mass * (vel * vel);
-
+		 return acceleration;
 }
 
 glm::vec3 Hook::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel) {
