@@ -31,6 +31,6 @@
 	 /*
 glm::vec3 Hook::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel) {
 		  // complete
-			 return glm::vec3(0.0f);
+		
 }
 */
