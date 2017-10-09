@@ -28,7 +28,7 @@
 #include "Body.h"
 
 
-const double dtime = 0.01;
+const double dtime = 0.1f;
 double currentTime = glfwGetTime();
 double accumulator = 0.0f;
 
