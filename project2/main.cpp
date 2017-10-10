@@ -106,6 +106,13 @@ int main()
 	 Gravity g = Gravity(glm::vec3(0.0f, -9.8f, 0.0f));
 	 particle1.addForce(&g);
 	 particle1.addForce(new Drag());
+	 //particle1.addForce(new Hook(&particle1, &particle2, 15.0f, 0.0f, 0.0f));
+	 particle2.setPos(glm::vec3(0.0f, 5.0f, -2.0f));
+	 particle2.setVel(glm::vec3(1.0f, 2.0f, 0.0f));
+	 Gravity g = Gravity(glm::vec3(0.0f, -9.8f, 0.0f));
+	 particle2.addForce(&g);
+	 particle2.addForce(new Drag());
+	// particle1.addForce(new Hook(&particle1, &particle2, 15.0f, 0.0f, 0.0f));
 	//dimensions of cube
 	glm::vec3 corner = glm::vec3(-2.5, 0.0f, 2.5f);
 	glm::vec3 wall = glm::vec3(5.0f, 5.0f, 5.0f);
