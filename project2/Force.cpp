@@ -31,8 +31,13 @@
 
 glm::vec3 Hook::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel) {
 		  // complete
-	float Hook = glm::dot(m_b2->getPos(), m_b1->getPos());
-	glm::vec3 e = m_b2 - m_b1 / Hook;
-		//fspring = -5 * (displacement)
+	float displacement = glm::distance(m_b2->getPos(), m_b1->getPos());
+	float stiffness = -m_ks * (m_rest - displacement);
+	glm::vec3 Unit = (m_b2->getPos() - m_b1->getPos()) / displacement;
+	glm::vec3 Hook = stiffness * Unit;
+	 
+	//glm::vec3 e = m_b2 - m_b1 / Hook;
+		//fspring = -5 * (displacement)/
+	return Hook;
 }
 

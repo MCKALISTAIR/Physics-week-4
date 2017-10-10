@@ -102,17 +102,16 @@ int main()
 	glm::vec3 acc = glm::vec3(0.0f, 0.0f, 0.0f);
 	*/
 	 particle1.setPos(glm::vec3(0.0f, 5.0f, -2.0f));
-	 particle1.setVel(glm::vec3(1.0f, 2.0f, 0.0f));
+	 //particle1.setVel(glm::vec3(1.0f, 2.0f, 0.0f));
 	 Gravity g = Gravity(glm::vec3(0.0f, -9.8f, 0.0f));
-	 particle1.addForce(&g);
-	 particle1.addForce(new Drag());
-	 //particle1.addForce(new Hook(&particle1, &particle2, 15.0f, 0.0f, 0.0f));
-	 particle2.setPos(glm::vec3(0.0f, 5.0f, -2.0f));
-	 particle2.setVel(glm::vec3(1.0f, 2.0f, 0.0f));
-	 Gravity g = Gravity(glm::vec3(0.0f, -9.8f, 0.0f));
+	// particle1.addForce(&g);
+	 //particle1.addForce(new Drag());
+	 //particle1.addForce(new Hook(&particle1, &particle2, 10.0f, 0.5f, 3.5f));
 	 particle2.addForce(&g);
-	 particle2.addForce(new Drag());
-	// particle1.addForce(new Hook(&particle1, &particle2, 15.0f, 0.0f, 0.0f));
+	 particle2.setPos(glm::vec3(0.0f, 3.0f, -2.0f));
+	 particle2.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
+	 particle2.addForce(new Hook(&particle2, &particle1, 10.0f, 0.5f, 3.5f));
+//	 Gravity g = Gravity(glm::vec3(0.0f, -9.8f, 0.0f));
 	//dimensions of cube
 	glm::vec3 corner = glm::vec3(-2.5, 0.0f, 2.5f);
 	glm::vec3 wall = glm::vec3(5.0f, 5.0f, 5.0f);
@@ -175,6 +174,11 @@ int main()
 		glm::vec3 move = dtime*particle1.getVel();
 		particle1.translate(move);
 		
+		particle2.setAcc(particle2.applyForces(particle2.getPos(), particle2.getVel(), currentTime, dtime));
+		particle2.setVel(particle2.getVel() + dtime*particle2.getAcc());
+		glm::vec3 moves = dtime*particle2.getVel();
+		particle2.translate(moves);
+	
 		/*
 		for (int i = 0; i < 3; i++)
 		{
@@ -193,6 +197,7 @@ int main()
 	}
 
 		Collide(corner, wall, particle1);
+		Collide(corner, wall, particle2);
 		//particle1.setPos();
 		/*
 		**	RENDER 
