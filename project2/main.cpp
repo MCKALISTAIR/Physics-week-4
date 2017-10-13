@@ -9,6 +9,7 @@
 // Std. Includes
 #include <string>
 #include <time.h>
+#include <vector>
 
 // GLM
 #include <glm/glm.hpp>
@@ -28,29 +29,29 @@
 #include "Body.h"
 
 
-const double dtime = 0.1f;
+const double dtime = 0.001f;
 double currentTime = glfwGetTime();
 double accumulator = 0.0f;
 
 
 void Collide(glm::vec3 corner, glm::vec3 wall, Particle &particle)
 {
-	for (int i = 0; i < 3; i++)
+	//for (int i = 0; i < 3; i++)
+	//{
+	if (particle.getPos()[1] < corner[1])
 	{
-		if (particle.getPos()[i] < corner[i])
-		{
-			//set the particle in line with wall
-			particle.setPos(i, corner[i]);
-			//makes ball go opposite direction
-			particle.setVel(i, particle.getVel()[i] *= -1.0f);
-		}
-		if (particle.getPos()[i] > corner[i] + wall[i])
-		{
-			//same as above
-			particle.setPos(i, corner[i] + wall[i]);
-			particle.setVel(i, particle.getVel()[i] *= -1.0f);
-		}
+		//set the particle in line with wall
+		particle.setPos(1, corner[1]);
+		//makes ball go opposite direction
+		particle.setVel(1, particle.getVel()[1] *= -0.5f);
 	}
+	if (particle.getPos()[1] > corner[1] + wall[1])
+	{
+		//same as above
+		particle.setPos(1, corner[1] + wall[1]);
+		particle.setVel(1, particle.getVel()[1] *= -0.5f);
+	}
+	//}
 }
 // main function
 int main()
@@ -59,17 +60,44 @@ int main()
 	Application app = Application::Application();
 	app.initRender();
 	Application::camera.setCameraPosition(glm::vec3(0.0f, 5.0f, 20.0f));
-			
+
 	// create ground plane
 	Mesh plane = Mesh::Mesh();
 	// scale it up x5
 	plane.scale(glm::vec3(5.0f, 5.0f, 5.0f));
 	plane.setShader(Shader("resources/shaders/core.vert", "resources/shaders/core.frag"));
-	
-	
-	
+
+	float numberparticles = 10;
+	std::vector<Particle> list;
+	glm::vec3 start = glm::vec3(-2.5f, 5.0f, 0.0f);
+	float distance = 0.5f;
+	for (int i = 0; i < numberparticles; i++)
+	{
+		Particle particle = Particle::Particle();
+		particle.getMesh().setShader(Shader("resources/shaders/core.vert", "resources/shaders/core_blue.frag"));
+		particle.setMass(0.3f);
+		if (i == 0)
+		{
+			particle.setVel(glm::vec3(0.0f));
+			particle.setPos(glm::vec3(start));
+		}
+		else if (i > 0 && i < numberparticles -1)
+		{
+			particle.setVel(glm::vec3(0.01f));
+			particle.setPos(start + glm::vec3(distance, 0.0f, 0.0f) * i);
+		}
+		else if (i == numberparticles - 1)
+		{
+			particle.setVel(glm::vec3(0.0f));
+			particle.setPos(start + glm::vec3(distance, 0.0f, 0.0f) * i);
+		}
+			list.push_back(particle);
+	}
+
+
+
 	// create particle's
-	
+	/*
 	Particle particle1 = Particle::Particle();
 	Particle particle2 = Particle::Particle();
 	Particle particle3 = Particle::Particle();
@@ -79,12 +107,12 @@ int main()
 	particle1.scale(glm::vec3(4.1f, 4.1f, 4.1f));
 	particle1.rotate((GLfloat) M_PI_2, glm::vec3(0.0f, 2.0f, 0.0f));
 	particle1.getMesh().setShader(Shader("resources/shaders/core.vert", "resources/shaders/core_blue.frag"));
-	
+
 	particle2.scale(glm::vec3(5.0f, 5.0f, 5.0f));
 	particle2.translate(glm::vec3(0.0f, 2.0f, 0.0f));
 	particle2.rotate((GLfloat)M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
 	particle2.getMesh().setShader(Shader("resources/shaders/core.vert", "resources/shaders/core_blue.frag"));
-	
+
 
 	particle3.scale(glm::vec3(5.0f, 5.0f, 5.0f));
 	particle3.translate(glm::vec3(2.0f, 2.0f, 0.0f));
@@ -101,116 +129,147 @@ int main()
 	glm::vec3 v = glm::vec3(1.0f, 2.0f, 0.0f);
 	glm::vec3 acc = glm::vec3(0.0f, 0.0f, 0.0f);
 	*/
-	 particle1.setPos(glm::vec3(0.0f, 5.0f, -2.0f));
+	// particle1.setPos(glm::vec3(0.0f, 5.0f, -2.0f));
 	 //particle1.setVel(glm::vec3(1.0f, 2.0f, 0.0f));
-	 Gravity g = Gravity(glm::vec3(0.0f, -9.8f, 0.0f));
+	 //Gravity g = Gravity(glm::vec3(0.0f, -9.8f, 0.0f));
+	Gravity g = Gravity();
 	// particle1.addForce(&g);
 	 //particle1.addForce(new Drag());
 	 //particle1.addForce(new Hook(&particle1, &particle2, 10.0f, 0.5f, 3.5f));
-	 particle2.addForce(&g);
-	 particle2.setPos(glm::vec3(0.0f, 3.0f, -2.0f));
-	 particle2.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
-	 particle2.addForce(new Hook(&particle2, &particle1, 10.0f, 0.5f, 3.5f));
+	// particle2.addForce(&g);
+	// particle2.setPos(glm::vec3(0.0f, 3.0f, -2.0f));
+// particle2.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
+// particle2.addForce(new Hook(&particle2, &particle1, 10.0f, 0.5f, 3.5f));
 //	 Gravity g = Gravity(glm::vec3(0.0f, -9.8f, 0.0f));
-	//dimensions of cube
-	glm::vec3 corner = glm::vec3(-2.5, 0.0f, 2.5f);
-	glm::vec3 wall = glm::vec3(5.0f, 5.0f, 5.0f);
-	const int particleNum = 100;
-	glm::vec3 force = glm::vec3(0.0f, 0.0f, 0.0f);
-	// time
-	GLfloat firstFrame = (GLfloat) glfwGetTime();
-	//float mass = 2.0f;
-	/*
-	glm::vec3 p0 = glm::vec3(0.0f, 5.0f, 0.0f);
-	glm::vec3 p1 = glm::vec3(2.0f, 5.0f, 0.0f);
-	glm::vec3 v0 = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 a = glm::vec3(0.0f, -9.8f, 0.0f);
-	*/
-	float currentFrames[particleNum];
-	// Game loop
-	while (!glfwWindowShouldClose(app.getWindow()))
+for (int i = 0; i < list.size(); i++)
 	{
-		// Set frame time
-		///GLfloat currentFrame = (GLfloat)  glfwGetTime() - firstFrame;
-		//// Set frame time
-		double newTime = glfwGetTime();
-		double frameTime = newTime - currentTime;
-		currentTime = newTime;
-		accumulator += frameTime;
-		// the animation can be sped up or slowed down by multiplying currentFrame by a factor.
-		
-
-		//	INTERACTION
-		
-		// Manage interaction
-		app.doMovement(dtime);
-
-		while (accumulator > dtime)
+	
+		if (i > 0 && i < list.size() - 1)
 		{
+			list[i].addForce(&g);
+			list[i].addForce(new Drag());
+			list[i].addForce(new Hook(&list[i], &list[i - 1], 5.0f, 0.8f, 0.5f));
+			list[i].addForce(new Hook(&list[i], &list[i + 1], 5.0f, 0.8f, 0.5f));
+		}
+	
+	}
+
+//dimensions of cube
+glm::vec3 corner = glm::vec3(-2.5, 0.0f, 2.5f);
+glm::vec3 wall = glm::vec3(5.0f, 5.0f, 5.0f);
+const int particleNum = 100;
+glm::vec3 force = glm::vec3(0.0f, 0.0f, 0.0f);
+// time
+GLfloat firstFrame = (GLfloat)glfwGetTime();
+//float mass = 2.0f;
+/*
+glm::vec3 p0 = glm::vec3(0.0f, 5.0f, 0.0f);
+glm::vec3 p1 = glm::vec3(2.0f, 5.0f, 0.0f);
+glm::vec3 v0 = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 a = glm::vec3(0.0f, -9.8f, 0.0f);
+*/
+//float currentFrames[particleNum];
+// Game loop
+while (!glfwWindowShouldClose(app.getWindow()))
+{
+	// Set frame time
+	///GLfloat currentFrame = (GLfloat)  glfwGetTime() - firstFrame;
+	//// Set frame time
+	double newTime = glfwGetTime();
+	double frameTime = newTime - currentTime;
+	currentTime = newTime;
+	accumulator += frameTime;
+	// the animation can be sped up or slowed down by multiplying currentFrame by a factor.
+
+
+	//	INTERACTION
+
+	// Manage interaction
+	app.doMovement(dtime);
+
+	while (accumulator > dtime)
+	{
+		for (int i = 0; i < list.size(); i++)
+		{
+			list[i].setAcc(list[i].applyForces(list[i].getPos(), list[i].getVel(), currentTime, dtime));
+			list[i].setVel(list[i].getVel() + dtime*list[i].getAcc());
+			glm::vec3 move = dtime*list[i].getVel();
+			list[i].translate(move);
+
+		}
 		/*
 		**	SIMULATION
 		*/
-			/*
-		force = mass * g;
-		acc = force / mass;
-		v = v + (dtime * acc);
-		p = p + (dtime * v);
-		*/
-		//particle3.setPos(p1 + v0 * currentTime + 0.5f * a * currentTime * currentTime);
-		
-		//if (particle2.getTranslate()[3][1] < 0.0f) {
-			//p0 = particle2.getTranslate()[3];
-			//p0[1] = 0.0f;
-			//v0 = v0 + a * currentTime;
-			//v0[1] = -1.0f * v0[1];
-			//firstFrame = glfwGetTime();
-		//}
-		//particle2.setPos(p0 + v0 * currentTime + 0.5f * a * currentTime * currentTime);
-		//particle1.setPos(p);
-		
-		//particle1.setAcc(g);
-		particle1.setAcc(particle1.applyForces(particle1.getPos(), particle1.getVel(), currentTime, dtime));
-		particle1.setVel(particle1.getVel() + dtime*particle1.getAcc());
-		glm::vec3 move = dtime*particle1.getVel();
-		particle1.translate(move);
-		
-		particle2.setAcc(particle2.applyForces(particle2.getPos(), particle2.getVel(), currentTime, dtime));
-		particle2.setVel(particle2.getVel() + dtime*particle2.getAcc());
-		glm::vec3 moves = dtime*particle2.getVel();
-		particle2.translate(moves);
-	
 		/*
-		for (int i = 0; i < 3; i++)
-		{
-			if (particle1.getTranslate()[3][i] < o[i])
-			{
-				v[i] = v[i] * -1.0f;
-			}
-			if (particle1.getTranslate()[3][i] > o[i] + d[i])
-			{
-				v[i] =v[i] * -1.0f;
-			}
-		}
-		*/
-		
-		accumulator -= dtime;
-	}
 
-		Collide(corner, wall, particle1);
-		Collide(corner, wall, particle2);
-		//particle1.setPos();
+	force = mass * g;
+	acc = force / mass;
+	v = v + (dtime * acc);
+	p = p + (dtime * v);
+	*/
+	//particle3.setPos(p1 + v0 * currentTime + 0.5f * a * currentTime * currentTime);
+
+	//if (particle2.getTranslate()[3][1] < 0.0f) {
+		//p0 = particle2.getTranslate()[3];
+		//p0[1] = 0.0f;
+		//v0 = v0 + a * currentTime;
+		//v0[1] = -1.0f * v0[1];
+		//firstFrame = glfwGetTime();
+	//}
+	//particle2.setPos(p0 + v0 * currentTime + 0.5f * a * currentTime * currentTime);
+	//particle1.setPos(p);
+
+	//particle1.setAcc(g);
 		/*
-		**	RENDER 
-		*/		
-		// clear buffer
-		app.clear();
-		// draw groud plane
-		app.draw(plane);
-		// draw particles
-		app.draw(particle1.getMesh());				
-		app.draw(particle2.getMesh());
-		app.draw(particle3.getMesh());
-		app.draw(particle4.getMesh());
+	particle1.setAcc(particle1.applyForces(particle1.getPos(), particle1.getVel(), currentTime, dtime));
+	particle1.setVel(particle1.getVel() + dtime*particle1.getAcc());
+	glm::vec3 move = dtime*particle1.getVel();
+	particle1.translate(move);
+
+	particle2.setAcc(particle2.applyForces(particle2.getPos(), particle2.getVel(), currentTime, dtime));
+	particle2.setVel(particle2.getVel() + dtime*particle2.getAcc());
+	glm::vec3 moves = dtime*particle2.getVel();
+	particle2.translate(moves);
+
+	/*
+	for (int i = 0; i < 3; i++)
+	{
+		if (particle1.getTranslate()[3][i] < o[i])
+		{
+			v[i] = v[i] * -1.0f;
+		}
+		if (particle1.getTranslate()[3][i] > o[i] + d[i])
+		{
+			v[i] =v[i] * -1.0f;
+		}
+	}
+	*/
+
+		accumulator -= dtime;
+
+	}
+	for (int i = 0; i < list.size(); i++)
+		Collide(corner, wall, list[i]);
+
+	//Collide(corner, wall, particle1);
+	//Collide(corner, wall, particle2);
+	//particle1.setPos();
+	/*
+	**	RENDER
+	*/
+	// clear buffer
+	app.clear();
+	// draw groud plane
+	app.draw(plane);
+	// draw particles
+	for (int i = 0; i < list.size(); i++)
+		{
+		app.draw(list[i].getMesh());
+}
+		//app.draw(particle1.getMesh());				
+		//app.draw(particle2.getMesh());
+		//app.draw(particle3.getMesh());
+		//app.draw(particle4.getMesh());
 		app.display();
 	}
 
