@@ -68,7 +68,7 @@ int main()
 	//initial position for first particle
 	glm::vec3 start = glm::vec3(-2.5f, 5.0f, 0.0f);
 	float distance = 0.5f;
-	//create for loop to create particles and add to list
+	//loop to add particles
 	for (int i = 0; i < numberparticles; i++)
 	{
 		Particle particle = Particle::Particle();
@@ -102,7 +102,7 @@ int main()
 
 	ridgid.addForce(&g);
 	
-	//Apply forces to particles
+	//Apply forces to particls
 	for (int i = 0; i < list.size(); i++)
 	{
 
@@ -117,9 +117,7 @@ int main()
 	glm::vec3 o = glm::vec3(-2.5, 0.0f, 2.5f);
 	glm::vec3 d = glm::vec3(5.0f, 5.0f, 5.0f);
 
-
 	// time
-	//GLfloat firstFrame = (GLfloat) glfwGetTime();
 
 	double t = 0.0f;
 	const double dtime = 0.01f;
@@ -135,13 +133,6 @@ int main()
 			ridgid.rotate(sqrt(glm::dot(dRot, dRot)), dRot);
 
 		}
-		// Set frame time
-		//GLfloat currentFrame = (GLfloat)  glfwGetTime() - firstFrame;
-		// the animation can be sped up or slowed down by multiplying currentFrame by a factor.
-		/*
-		currentFrame *= 1.5f;
-		dtime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
 		*/
 
 		double new_time = (GLfloat)glfwGetTime();
@@ -150,9 +141,9 @@ int main()
 
 		accumalator += frame;
 
-		/*
-		**	INTERACTION
-		*/
+		
+		//**	INTERACTION
+		//*/
 		// Manage interaction
 		app.doMovement(dtime);
 		//	SIMULATION
