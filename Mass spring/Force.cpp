@@ -13,7 +13,6 @@ glm::vec3 Force::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel) {
    ** GRAVITY
    */
 glm::vec3 Gravity::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel) {
-	// complete. Should return the acceleration resulting from gravity
 	glm::vec3 adg = mass*m_gravity;
 
 	return adg;
@@ -37,11 +36,8 @@ glm::vec3 Hook::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel) {
 	
 	glm::vec3 Unit = (m_b2->getPos() - m_b1->getPos()) / displacement;
 
-	//glm::vec3 v1 = Unit * m_b1->getVel();
-	//glm::vec3 v2 = Unit * m_b2->getVel();
-
 	float dampness = -m_kd * (glm::dot(m_b1->getVel(), Unit) - glm::dot(m_b2->getVel(), Unit));
 
-	glm::vec3 Hook = (stiffness + dampness) * Unit;
+		glm::vec3 Hook = (stiffness + dampness) * Unit;
 	return Hook;
 }

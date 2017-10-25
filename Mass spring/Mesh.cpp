@@ -108,14 +108,14 @@ Mesh::Mesh(MeshType type)
 		bool individual = true;
 		for each (Vertex u in uniques)
 		{
-			if (v.getCoord() == u.getCoord())
+				if (v.getCoord() == u.getCoord())
 			{
-				individual = false;
+					individual = false;
 			}
 		}
-		if (individual)
+			if (individual)
 		{
-			uniques.push_back(v);
+				uniques.push_back(v);
 		}
 	}
 

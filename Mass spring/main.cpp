@@ -31,19 +31,19 @@
 
 void Collision_Detect(glm::vec3 corner, glm::vec3 wall, Particle &particle)
 {
-	for (int i = 0; i < 3; i++)
-	{
-		if (particle.getPos()[i] < corner[i])
+		for (int i = 0; i < 3; i++)
 		{
-			particle.setPos(i, corner[i]);
-			particle.setVel(i, particle.getVel()[i] * -0.5f);
+			if (particle.getPos()[i] < corner[i])
+			{
+				particle.setPos(i, corner[i]);
+				particle.setVel(i, particle.getVel()[i] * -0.5f);
+			}
+			if (particle.getPos()[i] > corner[i] + wall[i])
+			{
+				particle.setPos(i, corner[i] + wall[i]);
+				particle.setVel(i, particle.getVel()[i] * -0.5f);
+			}
 		}
-		if (particle.getPos()[i] > corner[i] + wall[i])
-		{
-			particle.setPos(i, corner[i] + wall[i]);
-			particle.setVel(i, particle.getVel()[i] * -0.5f);
-		}
-	}
 }
 
 // time
@@ -63,8 +63,6 @@ int main()
 	// scale it up x5
 	plane.scale(glm::vec3(5.0f, 5.0f, 5.0f));
 	plane.setShader(Shader("resources/shaders/core.vert", "resources/shaders/core.frag"));
-
-	//declare number of particles and create list
 	float numberparticles = 10;
 	std::vector<Particle> list;
 	//initial position for first particle
@@ -157,25 +155,24 @@ int main()
 		*/
 		// Manage interaction
 		app.doMovement(dtime);
-
-
-		/*
-		**	SIMULATION
-		*/
+		//	SIMULATION
+		
 		while (accumalator >= dtime)
 		{
 			//particle1.setAcc(g);
 			for (int i = 0; i < list.size(); i++)
 			{
 				list[i].setAcc(list[i].applyForces(list[i].getPos(), list[i].getVel(), t, dtime));
+
 				list[i].setVel(list[i].getVel() + dtime*list[i].getAcc());
-				glm::vec3 move = dtime*list[i].getVel();
+
+					glm::vec3 move = dtime*list[i].getVel();
+
 				list[i].translate(move);
 
 
 			}
-			accumalator -= dtime;
-			//t += dtime;
+				accumalator -= dtime;
 		}
 		for (int i = 0; i < list.size(); i++)
 		{
