@@ -20,7 +20,7 @@ public:
 	}
 
 	Vertex(const glm::vec3& coord) {
-		m_coord = coord;
+			m_coord = coord;
 
 	}
 	glm::vec3 getCoord() const { return m_coord; }
@@ -80,7 +80,7 @@ public:
 	// set position of mesh center to specified 3D position vector
 	void setPos(const glm::vec3 &position) {
 		m_translate[3][0] = position[0];
-		m_translate[3][1] = position[1];
+			m_translate[3][1] = position[1];
 		m_translate[3][2] = position[2];
 	}
 	// set i_th coordinate of mesh center to float p (x: i=0, y: i=1, z: i=2)
@@ -89,7 +89,7 @@ public:
 	// allocate shader to mesh
 	void setShader(const Shader &shader) {
 		m_shader = shader;
-		m_shader.Use();
+			m_shader.Use();
 	}
 
 
@@ -106,8 +106,9 @@ public:
 	// load .obj file
 	void loadOBJ(const char * path,
 		std::vector < glm::vec3 > & out_vertices,
-		std::vector < glm::vec2 > & out_uvs,
-		std::vector < glm::vec3 > & out_normals
+			std::vector < glm::vec2 > & out_uvs,
+
+			std::vector < glm::vec3 > & out_normals
 		
 	);
 
@@ -115,12 +116,8 @@ public:
 	/*
 	** TRANSFORMATION METHODS
 	*/
-
-	// translate mesh by a vector
 	void translate(const glm::vec3 &vect);
-	// rotate mesh by a vector
 	void rotate(const float &angle, const glm::vec3 &vect);
-	// scale mesh by a vector
 	void scale(const glm::vec3 &vect);
 
 
@@ -133,8 +130,10 @@ private:
 	GLuint m_vertexArrayObject;
 	GLuint m_vertexArrayBuffers[NUM_BUFFERS];
 	unsigned int m_numIndices;
+
 	glm::mat4 m_translate;
 	glm::mat4 m_rotate;
+
 	glm::mat4 m_scale;
 
 	Shader m_shader;
