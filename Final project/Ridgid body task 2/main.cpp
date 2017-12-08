@@ -250,6 +250,7 @@ int main()
 
 		std::vector<Vertex> collidingVertices = Collision_Detect(plane.getPos()[1], ridgid);
 		bool collisionDetected = collidingVertices.size() > 0;
+		
 		std::vector<Vertex> collidingVertices2 = Collision_Detect(plane.getPos()[1], ridgid2);
 		bool collisionDetected2 = collidingVertices2.size() > 0;
 		if (collisionDetected2)
@@ -260,15 +261,6 @@ int main()
 				if (v.getCoord().y < lowVert.getCoord().y)
 				{
 					lowVert = v;
-				}
-
-			}
-
-			if (secondCollision < firstCollision)
-			{
-				for (Vertex v : collidingVertices2)
-				{
-					std::cout << "colliding vertice = " << to_string(v.getCoord()) << std::endl;
 				}
 			}
 			glm::vec3 displacement = glm::vec3(0.0f);
@@ -284,8 +276,8 @@ int main()
 			Vertex average = Vertex(sumOfVertices / collidingVertices2.size());
 			glm::vec3 r = average.getCoord() - ridgid2.getPos();
 			glm::vec3 vr = ridgid2.getVel() + cross(ridgid2.getAngVel(), r);
-			glm::vec3 n = normalize(glm::vec3(0.0f, 1.0f, 0.0f));
-			float e = 0.02f;
+			glm::vec3 n = normalize(glm::vec3(1.0f, 0.0f, 0.0f));
+			float e = 0.2f;
 
 			glm::vec3 j = (-(1 + e) * vr * n) / (pow(ridgid2.getMass(), -1) + n * cross(ridgid2.getInvInertia()* cross(r, n), r));
 
@@ -334,7 +326,7 @@ int main()
 			glm::vec3 r = average.getCoord() - ridgid.getPos();
 			glm::vec3 vr = ridgid.getVel() + cross(ridgid.getAngVel(), r);
 			glm::vec3 n = normalize(glm::vec3(0.0f, 1.0f, 0.0f));
-			float e = 0.02f;
+			float e = -0.00001f;
 
 			glm::vec3 j = (-(1 + e) * vr * n) / (pow(ridgid.getMass(), -1) + n * cross(ridgid.getInvInertia()* cross(r, n), r));
 
