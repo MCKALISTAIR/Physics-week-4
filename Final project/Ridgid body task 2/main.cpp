@@ -28,6 +28,7 @@
 #include "Particle.h"
 #include "RigidBody.h"
 
+const double dtime = 0.01;
 std::vector <Vertex> Collision_Detect(GLfloat y, RigidBody &rb)
 {
 	std::vector <Vertex> transformlist;
@@ -124,6 +125,25 @@ float sqdistpointOBB(Vertex p, RigidBody b)
 	float sqDist = glm::dot(closest.getCoord() - p.getCoord(), closest.getCoord() - p.getCoord());
 	return sqDist;
 }
+void Collide(glm::vec3 corner, glm::vec3 wall, Particle &particle)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		if (particle.getPos()[i] < corner[i])
+		{
+			//set the particle in line with wall
+			particle.setPos(i, corner[i]);
+			//makes ball go opposite direction
+			particle.setVel(i, particle.getVel()[i] *= -1.0f);
+		}
+		if (particle.getPos()[i] > corner[i] + wall[i])
+		{
+			//same as above
+			particle.setPos(i, corner[i] + wall[i]);
+			particle.setVel(i, particle.getVel()[i] *= -1.0f);
+		}
+	}
+}
 /*void Collision_Detect(glm::vec3 corner, glm::vec3 wall, Particle &particle)
 {
 		for (int i = 0; i < 3; i++)
@@ -158,6 +178,20 @@ int main()
 	// scale it up x5
 		plane.scale(glm::vec3(25.0f, 0.0f, 25.0f));
 	plane.setShader(Shader("resources/shaders/core.vert", "resources/shaders/core.frag"));
+
+	Particle particle1 = Particle::Particle();
+	particle1.translate(glm::vec3(0.0f, 2.5f, 0.0f));
+	particle1.scale(glm::vec3(4.1f, 4.1f, 4.1f));
+	particle1.rotate((GLfloat)M_PI_2, glm::vec3(0.0f, 2.0f, 0.0f));
+	particle1.getMesh().setShader(Shader("resources/shaders/core.vert", "resources/shaders/core_blue.frag"));
+	particle1.setPos(glm::vec3(0.0f, 5.0f, -2.0f));
+	particle1.setVel(glm::vec3(1.0f, 2.0f, 0.0f));
+
+	glm::vec3 corner = glm::vec3(-2.5, 0.0f, 2.5f);
+	glm::vec3 wall = glm::vec3(5.0f, 5.0f, 5.0f);
+	const int particleNum = 100;
+	glm::vec3 force = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 gra = glm::vec3(0.0f, -9.8f, 0.0f);
 	/*
 	float numberparticles = 10;
 	std::vector<Particle> list;
@@ -273,6 +307,11 @@ int main()
 		
 		while (accumalator >= dtime)
 		{
+
+			particle1.setAcc(gra);
+			particle1.setVel(particle1.getVel() + dtime*particle1.getAcc());
+			glm::vec3 movep = dtime*particle1.getVel();
+			particle1.translate(movep);
 			if (!invInertiaShowed)
 			{
 				std::cout << "Inverse inertia: " << glm::to_string(ridgid.getInvInertia()) << std::endl << std::endl;
@@ -410,6 +449,7 @@ int main()
 			Collision_Detect(o, d, list[i]);
 		}
 		*/
+		Collide(corner, wall, particle1);
 		/*
 		**	RENDER
 		*/
@@ -424,6 +464,7 @@ int main()
 		//}
 		app.draw(ridgid.getMesh());
 		app.draw(ridgid2.getMesh());
+		app.draw(particle1.getMesh());
 
 
 		app.display();
