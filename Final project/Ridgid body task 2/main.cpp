@@ -42,6 +42,88 @@ std::vector <Vertex> Collision_Detect(GLfloat y, RigidBody &rb)
 	return transformlist;
 }
 
+int Collison(RigidBody a, RigidBody b)
+{
+	float ra, rb;
+	glm::mat3x3 R, absR;
+
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			R[i][j] = glm::dot(a.getRotate()[i], b.getRotate()[j]);
+	glm::vec3 t = b.getPos() - a.getPos();
+	t = glm::vec3(glm::dot(t, a.getRotate()[0]), glm::dot(t, a.getRotate()[1]), glm::dot(t, a.getRotate()[2]));
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			absR[i][j] = abs(R[i][j]) + 0.001f;
+	for (int i = 0; i < 3; i++) {
+		ra = a.getScale()[i][i];
+		rb = b.getScale()[0][0] * absR[0][i] + a.getScale()[1][1] * absR[1][i];
+		if (abs(t[i]) > ra + rb) return 0;
+	}
+	for (int i = 0; i < 3; i++) {
+		ra = a.getScale()[0][0] * absR[0][i] + a.getScale()[1][1] * absR[1][i] + a.getScale()[2][2] * absR[2][i];
+		rb = b.getScale()[i][i];
+		if (abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] + R[2][i]) > ra + rb) return 0;
+	}
+	ra = a.getScale()[1][1] * absR[2][0] + a.getScale()[2][2] * absR[1][0];
+	rb = b.getScale()[1][1] * absR[0][2] + b.getScale()[2][2] * absR[0][1];
+	if (abs(t[2] * R[1][0] - t[1] * R[2][0]) > ra + rb)  return 0;
+
+	ra = a.getScale()[1][1] * absR[2][1] + a.getScale()[2][2] * absR[1][1];
+	rb = b.getScale()[0][0] * absR[0][2] + b.getScale()[2][2] * absR[0][0];
+	if (abs(t[2] * R[1][1] - t[1] * R[2][1]) > ra + rb) return 0;
+
+	ra = a.getScale()[1][1] * absR[2][2] + a.getScale()[2][2] * absR[1][2];
+	rb = b.getScale()[0][0] * absR[0][1] + b.getScale()[1][1] * absR[0][0];
+	if (abs(t[2] * R[1][2] - t[1] * R[2][2]) > ra + rb) return 0;
+
+	ra = a.getScale()[0][0] * absR[2][0] + a.getScale()[2][2] * absR[0][0];
+	rb = b.getScale()[1][1] * absR[1][2] + b.getScale()[2][2] * absR[1][1];
+	if (abs(t[0] * R[2][0] - t[2] * R[0][0]) > ra + rb) return 0;
+
+	ra = a.getScale()[0][0] * absR[2][1] + a.getScale()[2][2] * absR[0][1];
+	rb = b.getScale()[0][0] * absR[1][2] + b.getScale()[1][1] * absR[1][0];
+	if (abs(t[0] * R[2][1] - t[2] * R[0][1]) > ra + rb) return 0;
+
+	ra = a.getScale()[0][0] * absR[2][2] + a.getScale()[2][2] * absR[0][2];
+	rb = b.getScale()[0][0] * absR[1][1] + b.getScale()[1][1] * absR[1][0];
+	if (abs(t[0] * R[2][2] - t[2] * R[0][2]) > ra + rb) return 0;
+
+	ra = a.getScale()[0][0] * absR[1][0] + a.getScale()[1][1] * absR[0][0];
+	rb = b.getScale()[1][1] * absR[2][2] + b.getScale()[2][2] * absR[2][1];
+	if (abs(t[2] * R[0][0] - t[0] * R[1][0]) > ra + rb) return 0;
+
+	ra = a.getScale()[0][0] * absR[1][1] + a.getScale()[1][1] * absR[0][1];
+	rb = b.getScale()[0][0] * absR[2][2] + b.getScale()[2][2] * absR[2][0];
+	if (abs(t[1] * R[0][1] - t[0] * R[1][1]) > ra + rb) return 0;
+
+	ra = a.getScale()[0][0] * absR[1][2] + a.getScale()[1][1] * absR[0][2];
+	rb = b.getScale()[0][0] * absR[2][1] + b.getScale()[1][1] * absR[2][0];
+	if (abs(t[1] * R[0][2] - t[0] * R[1][2]) > ra + rb) return 0;
+
+	return 1;
+}
+void closestpointOBB(Vertex p, RigidBody b, Vertex &q)
+{
+	glm::vec3 d = p.getCoord() - b.getPos();
+	q = b.getPos();
+
+	for (int i = 0; i < 3; i++) {
+		float dist = glm::dot(d, b.getRotate()[i]);
+		if (dist > b.getScale()[i][i]) dist = b.getScale()[i][i];
+		if (dist < b.getScale()[i][i]) dist = -b.getScale()[i][i];
+
+		q.getCoord() += dist * b.getRotate()[i];
+
+	}
+}
+float sqdistpointOBB(Vertex p, RigidBody b)
+{
+	Vertex closest;
+	closestpointOBB(p, b, closest);
+	float sqDist = glm::dot(closest.getCoord() - p.getCoord(), closest.getCoord() - p.getCoord());
+	return sqDist;
+}
 /*void Collision_Detect(glm::vec3 corner, glm::vec3 wall, Particle &particle)
 {
 		for (int i = 0; i < 3; i++)
@@ -206,9 +288,9 @@ int main()
 			glm::vec3 move2 = dtime * ridgid2.getVel();
 			ridgid2.translate(move2);
 			accumalator -= dtime;
-			
-			
 
+
+		}
 
 			//particle1.setAcc(g);
 			/*
@@ -226,7 +308,7 @@ int main()
 			}
 				accumalator -= dtime;
 				*/
-		}
+		//}
 		/*
 		// integration (rotation)
 		glm::vec3 dRot = ridgid.getAngVel() * dtime;
@@ -236,68 +318,8 @@ int main()
 		}
 		*/
 		//////////////////////////////////////////////////////////////////////t = Vector(Dot(t, a.u[0]), Dot(t, a.u[1]), Dot(t, a.u[2]));
-int cdetect()
-		{
-			float ra, rb;
-			Matrix33 R, AbsR;
+		
 
-			for (int i = 0; i < 3 i++)
-				for (int j = 0; j < 3, j++)
-					R[i][j] = Dot(a.u[i], b.u[j]);
-			Vector t = b.c - a.c;
-			t = V = b.c - a.c;
-			t = Vector(Dot(t, a.u[0]), Dot(t, a.u[1]), Dot(t, a.u[2]));
-			for (int i = 0; i < 3; i++)
-				for (int j = 0; j < 3; j++)
-					AbsR[i][j] = Abs(R[i][j]) + EPSILON;
-			for (int i = 0; i < 3; i++) {
-				ra = a.e[i];
-				rb = b.e[0] * AbsR[0][i] + a.e[1] * AbsR[1][i];
-				if (Abs(t[i]) > ra + rb) return 0;
-			}
-			for (int i = 0; i < 3; i++) {
-				ra = a.e[0] * AbsR[0][i] + a.e[1] * AbsR[1][i] + a.e[2] * AbsR[2][i];
-				rb = b.e[i];
-				if (Abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] + R[2][i]) > ra + rb) return 0;
-			}
-			ra = a.e[1] * AbsR[2][0] + a.e[2] * AbsR[1][0];
-			rb = b.e[1] * AbsR[0][2] + b.e[2] * AbsR[0][1];
-			if (Abs(t[2] * R[1][0] - t[1] * R[2][0]) > ra + rb) return 0;
-
-			ra = a.e[1] * AbsR[2][1] + a.e[2] * AbsR[1][1];
-			rb = b.e[0] * AbsR[0][2] + b.e[2] * AbsR[0][0];
-			if (Abs(t[2] * R[1][1] - t[1] * R[2][1]) > ra + rb) return 0;
-
-			ra = a.e[1] * AbsR[2][2] + a.e[2] * AbsR[1][2];
-			rb = b.e[0] * AbsR[0][1] + b.e[1] * AbsR[0][0];
-			if (Abs(t[2] * R[1][2] - t[1] * R[2][2]) > ra + rb) return 0;
-
-			ra = a.e[0] * AbsR[2][0] + a.e[2] * AbsR[0][0];
-			rb = b.e[1] * AbsR[1][2] + b.e[2] * AbsR[1][1];
-			if (Abs(t[0] * R[2][0] - t[2] * R[0][0]) > ra + rb) return 0;
-
-			ra = a.e[0] * AbsR[2][1] + a.e[2] * AbsR[0][1];
-			rb = b.e[0] * AbsR[1][2] + b.e[1] * AbsR[1][0];
-			if (Abs(t[0] * R[2][1] - t[2] * R[0][1]) > ra + rb) return 0;
-
-			ra = a.e[0] * AbsR[2][2] + a.e[2] * AbsR[0][2];
-			rb = b.e[0] * AbsR[1][1] + b.e[1] * AbsR[1][0];
-			if (Abs(t[0] * R[2][2] - t[2] * R[0][2]) > ra + rb) return 0;
-
-			ra = a.e[0] * AbsR[1][0] + a.e[1] * AbsR[0][0];
-			rb = b.e[1] * AbsR[2][2] + b.e[2] * AbsR[2][1];
-			if (Abs(t[2] * R[0][0] - t[0] * R[1][0]) > ra + rb) return 0;
-
-			ra = a.e[0] * AbsR[1][1] + a.e[1] * AbsR[0][1];
-			rb = b.e[0] * AbsR[2][2] + b.e[2] * AbsR[2][0];
-			if (Abs(t[1] * R[0][1] - t[0] * R[1][1]) > ra + rb) return 0;
-
-			ra = a.e[0] * AbsR[1][2] + a.e[1] * AbsR[0][2];
-			rb = b.e[0] * AbsR[2][1] + b.e[1] * AbsR[2][0];
-			if (Abs(t[1] * R[0][2] - t[0] * R[1][2]) > ra + rb) return 0;
-			
-			return 1;
-		}
 		// integration ( rotation ) - 3D
 		ridgid.setAngVel(ridgid.getAngVel() + dtime * ridgid.getAngAcc());
 		// create skew symmetric matrix for w
@@ -309,7 +331,7 @@ int cdetect()
 		R = glm::orthonormalize(R);
 		ridgid.getMesh().setRotate(glm::mat4(R));
 
-		std::vector<Vertex> collidingVertices = Collision_Detect(ridgid2.getPos()[1], ridgid);
+		std::vector<Vertex> collidingVertices = Collision_Detect(plane.getPos()[1], ridgid);
 		bool collisionDetected = collidingVertices.size() > 0;
 		
 		std::vector<Vertex> collidingVertices2 = Collision_Detect(plane.getPos()[1], ridgid2);
@@ -342,17 +364,11 @@ int cdetect()
 
 			glm::vec3 j = (-(1 + e) * vr * n) / (pow(ridgid2.getMass(), -1) + n * cross(ridgid2.getInvInertia()* cross(r, n), r));
 
-			if (secondCollision < firstCollision)
-			{
-				std::cout << "Average = " << to_string(average.getCoord()) << std::endl;
-			}
-			secondCollision++;
-
 			ridgid.setVel(ridgid.getVel() + j / ridgid.getMass());
 			ridgid.setAngVel(ridgid.getAngVel() + ridgid.getInvInertia() * glm::cross(r, j));
 		}
 
-		
+		//colision ( rigid falls)
 		if (collisionDetected)
 		{
 			Vertex lowVert = collidingVertices[0].getCoord();
@@ -364,15 +380,6 @@ int cdetect()
 				}
 
 			}
-
-			if (secondCollision < firstCollision)
-			{
-				for (Vertex v : collidingVertices)
-				{
-					std::cout << "colliding vertice = " << to_string(v.getCoord()) << std::endl;
-				}
-			}
-
 			glm::vec3 displacement = glm::vec3(0.0f);
 			displacement.y = abs(lowVert.getCoord().y);
 			ridgid.translate(displacement);
@@ -387,16 +394,9 @@ int cdetect()
 			glm::vec3 r = average.getCoord() - ridgid.getPos();
 			glm::vec3 vr = ridgid.getVel() + cross(ridgid.getAngVel(), r);
 			glm::vec3 n = normalize(glm::vec3(0.0f, 1.0f, 0.0f));
-			float e = 0.0f;
+			float e = 0.1f;
 
 			glm::vec3 j = (-(1 + e) * vr * n) / (pow(ridgid.getMass(), -1) + n * cross(ridgid.getInvInertia()* cross(r, n), r));
-
-			if (secondCollision < firstCollision)
-			{
-				std::cout << "Average = " << to_string(average.getCoord()) << std::endl;
-			}
-			secondCollision++;
-
 			ridgid.setVel(ridgid.getVel() + j / ridgid.getMass());
 			ridgid.setAngVel(ridgid.getAngVel() + ridgid.getInvInertia() * glm::cross(r, j));
 		}
