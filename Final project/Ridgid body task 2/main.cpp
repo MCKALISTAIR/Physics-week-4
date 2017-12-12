@@ -27,8 +27,9 @@
 //#include "Body.h"
 #include "Particle.h"
 #include "RigidBody.h"
-
 const double dtime = 0.01;
+
+
 std::vector <Vertex> Collision_Detect(GLfloat y, RigidBody &rb)
 {
 	std::vector <Vertex> transformlist;
@@ -45,6 +46,74 @@ std::vector <Vertex> Collision_Detect(GLfloat y, RigidBody &rb)
 
 int Collison(RigidBody a, RigidBody b)
 {
+	//.e = scale
+	//.u = rotation
+	//.c = pos
+	float ra, rb;
+	glm::mat3x3 R, absR;
+
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			R[i][j] = glm::dot(a.getRotate()[i], b.getRotate()[j]);
+	glm::vec3 t = b.getPos() - a.getPos();
+	t = glm::vec3(glm::dot(t, a.getRotate()[0]), glm::dot(t, a.getRotate()[1]), glm::dot(t, a.getRotate()[2]));
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			absR[i][j] = abs(R[i][j]) + 0.001f;
+	for (int i = 0; i < 3; i++) {
+		ra = a.getScale()[i][i];
+		rb = b.getScale()[0][0] * absR[0][i] + a.getScale()[1][1] * absR[1][i];
+		if (abs(t[i]) > ra + rb) return 0;
+	}
+	for (int i = 0; i < 3; i++) {
+		ra = a.getScale()[0][0] * absR[0][i] + a.getScale()[1][1] * absR[1][i] + a.getScale()[2][2] * absR[2][i];
+		rb = b.getScale()[i][i];
+		if (abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] + R[2][i]) > ra + rb) return 0;
+	}
+	ra = a.getScale()[1][1] * absR[2][0] + a.getScale()[2][2] * absR[1][0];
+	rb = b.getScale()[1][1] * absR[0][2] + b.getScale()[2][2] * absR[0][1];
+	if (abs(t[2] * R[1][0] - t[1] * R[2][0]) > ra + rb)  return 0;
+
+	ra = a.getScale()[1][1] * absR[2][1] + a.getScale()[2][2] * absR[1][1];
+	rb = b.getScale()[0][0] * absR[0][2] + b.getScale()[2][2] * absR[0][0];
+	if (abs(t[2] * R[1][1] - t[1] * R[2][1]) > ra + rb) return 0;
+
+	ra = a.getScale()[1][1] * absR[2][2] + a.getScale()[2][2] * absR[1][2];
+	rb = b.getScale()[0][0] * absR[0][1] + b.getScale()[1][1] * absR[0][0];
+	if (abs(t[2] * R[1][2] - t[1] * R[2][2]) > ra + rb) return 0;
+
+	ra = a.getScale()[0][0] * absR[2][0] + a.getScale()[2][2] * absR[0][0];
+	rb = b.getScale()[1][1] * absR[1][2] + b.getScale()[2][2] * absR[1][1];
+	if (abs(t[0] * R[2][0] - t[2] * R[0][0]) > ra + rb) return 0;
+
+	ra = a.getScale()[0][0] * absR[2][1] + a.getScale()[2][2] * absR[0][1];
+	rb = b.getScale()[0][0] * absR[1][2] + b.getScale()[1][1] * absR[1][0];
+	if (abs(t[0] * R[2][1] - t[2] * R[0][1]) > ra + rb) return 0;
+
+	ra = a.getScale()[0][0] * absR[2][2] + a.getScale()[2][2] * absR[0][2];
+	rb = b.getScale()[0][0] * absR[1][1] + b.getScale()[1][1] * absR[1][0];
+	if (abs(t[0] * R[2][2] - t[2] * R[0][2]) > ra + rb) return 0;
+
+	ra = a.getScale()[0][0] * absR[1][0] + a.getScale()[1][1] * absR[0][0];
+	rb = b.getScale()[1][1] * absR[2][2] + b.getScale()[2][2] * absR[2][1];
+	if (abs(t[2] * R[0][0] - t[0] * R[1][0]) > ra + rb) return 0;
+
+	ra = a.getScale()[0][0] * absR[1][1] + a.getScale()[1][1] * absR[0][1];
+	rb = b.getScale()[0][0] * absR[2][2] + b.getScale()[2][2] * absR[2][0];
+	if (abs(t[1] * R[0][1] - t[0] * R[1][1]) > ra + rb) return 0;
+
+	ra = a.getScale()[0][0] * absR[1][2] + a.getScale()[1][1] * absR[0][2];
+	rb = b.getScale()[0][0] * absR[2][1] + b.getScale()[1][1] * absR[2][0];
+	if (abs(t[1] * R[0][2] - t[0] * R[1][2]) > ra + rb) return 0;
+
+	return 1;
+}
+
+int PCollison(RigidBody a, Particle b)
+{
+	//.e = scale
+	//.u = rotation
+	//.c = pos
 	float ra, rb;
 	glm::mat3x3 R, absR;
 
@@ -168,11 +237,12 @@ GLfloat lastFrame = 0.0f;
 // main function
 int main()
 {
+
 	// create application
 	Application app = Application::Application();
 	app.initRender();
 	Application::camera.setCameraPosition(glm::vec3(0.0f, 5.0f, 20.0f));
-
+	
 	// create ground plane
 	Mesh plane = Mesh::Mesh();
 	// scale it up x5
@@ -180,18 +250,19 @@ int main()
 	plane.setShader(Shader("resources/shaders/core.vert", "resources/shaders/core.frag"));
 
 	Particle particle1 = Particle::Particle();
-	particle1.translate(glm::vec3(0.0f, 2.5f, 0.0f));
+	//particle1.translate(glm::vec3(-10005.0f, -10.0f, -10000.0f));
 	particle1.scale(glm::vec3(4.1f, 4.1f, 4.1f));
 	particle1.rotate((GLfloat)M_PI_2, glm::vec3(0.0f, 2.0f, 0.0f));
 	particle1.getMesh().setShader(Shader("resources/shaders/core.vert", "resources/shaders/core_blue.frag"));
-	particle1.setPos(glm::vec3(0.0f, 5.0f, -2.0f));
+	particle1.setPos(glm::vec3(-5.0f, 5.0f, 1.0f));
+	particle1.translate(glm::vec3(-5.0f, 999995.0f, -91.0f));
 	particle1.setVel(glm::vec3(1.0f, 2.0f, 0.0f));
 
 	glm::vec3 corner = glm::vec3(-2.5, 0.0f, 2.5f);
 	glm::vec3 wall = glm::vec3(5.0f, 5.0f, 5.0f);
-	const int particleNum = 100;
 	glm::vec3 force = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 gra = glm::vec3(0.0f, -9.8f, 0.0f);
+	glm::vec3 horizont = glm::vec3(1.5f, 0.0f, 0.0f);
 	/*
 	float numberparticles = 10;
 	std::vector<Particle> list;
@@ -223,20 +294,23 @@ int main()
 	RigidBody ridgid = RigidBody();
 	Mesh m = Mesh::Mesh(Mesh::CUBE);
 	ridgid.setMesh(m);
-	Shader ridgidShader = Shader("resources/shaders/core.vert", "resources/shaders/core_blue.frag");
+	Shader ridgidShader = Shader("resources/shaders/core.vert", "resources/shaders/core_green.frag");
 	ridgid.getMesh().setShader(ridgidShader);
 
 	RigidBody ridgid2 = RigidBody();
 	Mesh m2 = Mesh::Mesh(Mesh::CUBE);
 	ridgid2.setMesh(m);
-	ridgid2.getMesh().setShader(ridgidShader);
+	Shader ridgidShader2 = Shader("resources/shaders/core.vert", "resources/shaders/core_red.frag");
+	ridgid2.getMesh().setShader(ridgidShader2);
 	
-	ridgid.translate(glm::vec3(0.0f, 0.0f, 0.0f));
+	ridgid.translate(glm::vec3(0.5f, 0.0f, 2.0f));
 	ridgid.scale(glm::vec3(1.0f, 3.0f, 1.0f));
 	ridgid.setAngVel(glm::vec3(0.0f, 0.0f, -1.5f));
 
-	ridgid2.translate(glm::vec3(3.0f, 4.0f, 0.0f));
+	ridgid2.translate(glm::vec3(3.5f, 0.0f, 2.0f));
 	ridgid2.scale(glm::vec3(1.0f, 3.0f, 1.0f));
+	//ridgid2.setAngVel(glm::vec3(0.0f, 0.0f, 0.0f));
+	//ridgid2.setAngVel(glm::vec3(0.0f, 0.0f, -1.5f));
 	/*
 	ridgid.translate(glm::vec3(0.0f, 15.0f, 0.0f));
 	ridgid.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -251,6 +325,13 @@ int main()
 	ridgid2.addForce(&g);
 	int firstCollision = 1;
 	int secondCollision = 0;
+	glfwPollEvents();
+	if (glfwGetKey(app.getWindow(), GLFW_KEY_Y))
+	{
+		//ridgid.addForce((-1)&g);
+	}
+	
+	
 	/*
 	//Apply forces to particls
 	for (int i = 0; i < list.size(); i++)
@@ -276,7 +357,6 @@ int main()
 	bool invInertiaShowed = false;
 	//glm::vec3 impulse = glm::vec3(-4.0f, 0.0f, 0.0f);
 	bool impulseapply = false;
-
 	// Game loop
 	while (!glfwWindowShouldClose(app.getWindow()))
 	{
@@ -290,7 +370,6 @@ int main()
 			ridgid.setAngVel(ridgid.getAngVel() + ridgid.getInvInertia() * cross(application - ridgid.getPos(), impulse));
 		}
 		*/
-
 		//
 		double new_time = (GLfloat)glfwGetTime();
 		double frame = new_time - current_time;
@@ -307,16 +386,12 @@ int main()
 		
 		while (accumalator >= dtime)
 		{
+			
 
 			particle1.setAcc(gra);
 			particle1.setVel(particle1.getVel() + dtime*particle1.getAcc());
 			glm::vec3 movep = dtime*particle1.getVel();
 			particle1.translate(movep);
-			if (!invInertiaShowed)
-			{
-				std::cout << "Inverse inertia: " << glm::to_string(ridgid.getInvInertia()) << std::endl << std::endl;
-				invInertiaShowed = true;
-			}
 			ridgid.setAcc(ridgid.applyForces(ridgid.getPos(), ridgid.getVel(), t, dtime));
 			ridgid.setVel(ridgid.getVel() + dtime*ridgid.getAcc());
 			glm::vec3 move = dtime * ridgid.getVel();
@@ -329,15 +404,64 @@ int main()
 			accumalator -= dtime;
 
 
-		}
+			// integration ( rotation ) - 3D
+			ridgid.setAngVel(ridgid.getAngVel() + dtime * ridgid.getAngAcc());
+			// create skew symmetric matrix for w
+			glm::mat3 angVelSkew = glm::matrixCross3(ridgid.getAngVel());
+			// create 3x3 rotation matrix from rb rotation matrix
+			glm::mat3 R = glm::mat3(ridgid.getRotate());
+			// update rotation matrix
+			R += dtime * angVelSkew *R;
+			R = glm::orthonormalize(R);
+			ridgid.getMesh().setRotate(glm::mat4(R));
 
+			// integration ( rotation ) - 3D
+			ridgid2.setAngVel(ridgid2.getAngVel() + dtime * ridgid2.getAngAcc());
+			// create skew symmetric matrix for w
+			glm::mat3 angVelSkew2 = glm::matrixCross3(ridgid2.getAngVel());
+			// create 3x3 rotation matrix from rb rotation matrix
+			glm::mat3 R2 = glm::mat3(ridgid2.getRotate());
+			// update rotation matrix
+			R2 += dtime * angVelSkew2 *R2;
+			R2 = glm::orthonormalize(R2);
+			ridgid2.getMesh().setRotate(glm::mat4(R2));
+
+		}
+		std::vector<Vertex> collidingVertices4 = Collision_Detect(particle1.getPos()[1], ridgid);
+		bool collisionDetected4 = collidingVertices4.size() > 0;
+
+		std::vector<Vertex> collidingVertices2 = Collision_Detect(plane.getPos()[1], ridgid2);
+		bool collisionDetected2 = collidingVertices2.size() > 0;
+
+		std::vector<Vertex> collidingVertices3 = Collision_Detect(ridgid.getPos()[1], ridgid2);
+		bool collisionDetected3 = collidingVertices2.size() > 0;
+
+		if (PCollison(ridgid, particle1))
+		{
+			particle1.setVel(glm::vec3(0.0f));
+			particle1.setAcc(glm::vec3(0.0f));
+		}
 		if (Collison(ridgid, ridgid2))
 		{
 			ridgid.setAngAccl(glm::vec3(0.0f));
 			ridgid.setAngVel(glm::vec3(0.0f));
-			//ridgid2.setAngVel(glm::vec3(0.0f, 0.0f, -1.5f));
+			
+			ridgid2.setVel(ridgid.getVel() + (horizont / ridgid.getMass()));
+			ridgid2.setAngVel(glm::vec3(0.0f, 0.0f, -1.5f));
+			ridgid2.setAcc(gra);
+			/*
+			if (collisionDetected3)
+			{
+				ridgid2.setAcc(glm::vec3(0.0f));
+				ridgid2.setAngAccl(glm::vec3(0.0f));
+				ridgid2.setAngVel(glm::vec3(0.0f));
+			}
+			*/
+
 		}
-			//particle1.setAcc(g);
+			
+		
+//particle1.setAcc(g);
 			/*
 			for (int i = 0; i < list.size(); i++)
 			{
@@ -365,22 +489,11 @@ int main()
 		//////////////////////////////////////////////////////////////////////t = Vector(Dot(t, a.u[0]), Dot(t, a.u[1]), Dot(t, a.u[2]));
 		
 
-		// integration ( rotation ) - 3D
-		ridgid.setAngVel(ridgid.getAngVel() + dtime * ridgid.getAngAcc());
-		// create skew symmetric matrix for w
-		glm::mat3 angVelSkew = glm::matrixCross3(ridgid.getAngVel());
-		// create 3x3 rotation matrix from rb rotation matrix
-		glm::mat3 R = glm::mat3(ridgid.getRotate());
-		// update rotation matrix
-		R += dtime * angVelSkew *R;
-		R = glm::orthonormalize(R);
-		ridgid.getMesh().setRotate(glm::mat4(R));
-
+		
 		std::vector<Vertex> collidingVertices = Collision_Detect(plane.getPos()[1], ridgid);
 		bool collisionDetected = collidingVertices.size() > 0;
 		
-		std::vector<Vertex> collidingVertices2 = Collision_Detect(plane.getPos()[1], ridgid2);
-		bool collisionDetected2 = collidingVertices2.size() > 0;
+		
 		if (collisionDetected2)
 		{
 			Vertex lowVert = collidingVertices2[0].getCoord();
@@ -394,7 +507,6 @@ int main()
 			glm::vec3 displacement = glm::vec3(0.0f);
 			displacement.y = abs(lowVert.getCoord().y);
 			ridgid2.translate(displacement);
-
 			glm::vec3 sumOfVertices;
 			for (Vertex v : collidingVertices2)
 			{
@@ -404,13 +516,13 @@ int main()
 			Vertex average = Vertex(sumOfVertices / collidingVertices2.size());
 			glm::vec3 r = average.getCoord() - ridgid2.getPos();
 			glm::vec3 vr = ridgid2.getVel() + cross(ridgid2.getAngVel(), r);
-			glm::vec3 n = normalize(glm::vec3(1.0f, 0.0f, 0.0f));
+			glm::vec3 n = normalize(glm::vec3(0.0f, 1.0f, 0.0f));
 			float e = 0.2f;
 
 			glm::vec3 j = (-(1 + e) * vr * n) / (pow(ridgid2.getMass(), -1) + n * cross(ridgid2.getInvInertia()* cross(r, n), r));
 
-			ridgid.setVel(ridgid.getVel() + j / ridgid.getMass());
-			ridgid.setAngVel(ridgid.getAngVel() + ridgid.getInvInertia() * glm::cross(r, j));
+			ridgid2.setVel(ridgid2.getVel() + j / ridgid2.getMass());
+			ridgid2.setAngVel(ridgid2.getAngVel() + ridgid2.getInvInertia() * glm::cross(r, j));
 		}
 
 		//colision ( rigid falls)
