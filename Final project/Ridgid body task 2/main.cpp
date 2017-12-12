@@ -331,6 +331,12 @@ int main()
 
 		}
 
+		if (Collison(ridgid, ridgid2))
+		{
+			ridgid.setAngAccl(glm::vec3(0.0f));
+			ridgid.setAngVel(glm::vec3(0.0f));
+			//ridgid2.setAngVel(glm::vec3(0.0f, 0.0f, -1.5f));
+		}
 			//particle1.setAcc(g);
 			/*
 			for (int i = 0; i < list.size(); i++)
