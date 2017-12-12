@@ -449,20 +449,20 @@ int main()
 			ridgid2.setVel(ridgid.getVel() + (horizont / ridgid.getMass()));
 			ridgid2.setAngVel(glm::vec3(0.0f, 0.0f, -1.5f));
 			ridgid2.setAcc(gra);
-			/*
+			
 			if (collisionDetected3)
 			{
 				ridgid2.setAcc(glm::vec3(0.0f));
-				ridgid2.setAngAccl(glm::vec3(0.0f));
+				ridgid2.setAngAccl(glm::vec3(0.0f)); 
 				ridgid2.setAngVel(glm::vec3(0.0f));
 			}
-			*/
+			
 
 		}
 			
 		
 //particle1.setAcc(g);
-			/*
+			/*//if particle1.getpos = pasrticle2.getpos reverse the velocity
 			for (int i = 0; i < list.size(); i++)
 			{
 				list[i].setAcc(list[i].applyForces(list[i].getPos(), list[i].getVel(), t, dtime));
