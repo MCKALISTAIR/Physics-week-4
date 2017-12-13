@@ -6,7 +6,6 @@
 
 glm::vec3 Force::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel) {
 	return glm::vec3(0.0f);
-
 }
 
 /*
@@ -16,6 +15,11 @@ glm::vec3 Gravity::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel)
 	glm::vec3 adg = mass*m_gravity;
 
 	return adg;
+}
+glm::vec3 NegGravity::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel) {
+	glm::vec3 adg1 = mass*m_gravity1*-1;
+
+	return adg1;
 }
 
 /*

@@ -34,7 +34,23 @@ public:
 private:
 	glm::vec3 m_gravity = glm::vec3(0.0f, -9.8f, 0.0f);
 };
+class NegGravity : public Force {
 
+public:
+	// constructors
+	NegGravity() {}
+	NegGravity(const glm::vec3 &gravity) { m_gravity1 = gravity; }
+
+	// get and set methods
+	glm::vec3 getGravity() const { return m_gravity1; }
+	void setGravity(glm::vec3 gravity) { m_gravity1 = gravity; }
+
+	// physics
+	glm::vec3 apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel);
+
+private:
+	glm::vec3 m_gravity1 = glm::vec3(0.0f, -9.8f, 0.0f);
+};
 /*
    ** DRAG CLASS
    */
