@@ -29,7 +29,7 @@
 #include "RigidBody.h"
 const double dtime = 0.01;
 
-
+//colisoon functions
 std::vector <Vertex> Collision_Detect(GLfloat y, RigidBody &rb)
 {
 	std::vector <Vertex> transformlist;
@@ -278,34 +278,8 @@ int main()
 	glm::vec3 force = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 gra = glm::vec3(0.0f, -9.8f, 0.0f);
 	glm::vec3 horizont = glm::vec3(1.5f, 0.0f, 0.0f);
-	/*
-	float numberparticles = 10;
-	std::vector<Particle> list;
-	//initial position for first particle
-	glm::vec3 start = glm::vec3(-2.5f, 5.0f, 0.0f);
-	float distance = 0.5f;
-	//loop to add particles
-	for (int i = 0; i < numberparticles; i++)
-	{
-		Particle particle = Particle::Particle();
-		particle.getMesh().setShader(Shader("resources/shaders/core.vert", "resources/shaders/core_blue.frag"));
-		particle.setMass(0.3f);
-		if (i == 0)
-		{
-			///set velocity and position of non moving particle
-			particle.setVel(glm::vec3(0.0f));
-			particle.setPos(glm::vec3(start));
-		}
-		else if (i > 0)
-		{
-			//set velocity and position of particles
-			particle.setVel(glm::vec3(0.01f));
-			particle.setPos(start + glm::vec3(distance, 0.0f, 0.0f) * i);
-		}
-		list.push_back(particle);
-	}
-	*/
-	// Set up a cubic rigid body.
+	
+	// Set up a cubic rigid bodys.
 	RigidBody ridgid = RigidBody();
 	Mesh m = Mesh::Mesh(Mesh::CUBE);
 	ridgid.setMesh(m);
@@ -333,15 +307,7 @@ int main()
 
 	ridgid3.translate(glm::vec3(9.5f, 0.0f, 2.0f));
 	ridgid3.scale(glm::vec3(1.0f, 3.0f, 1.0f));
-	//ridgid2.setAngVel(glm::vec3(0.0f, 0.0f, 0.0f));
-	//ridgid2.setAngVel(glm::vec3(0.0f, 0.0f, -1.5f));
-	/*
-	ridgid.translate(glm::vec3(0.0f, 15.0f, 0.0f));
-	ridgid.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
-	ridgid.setAngVel(glm::vec3(0.3f, 0.6f, 0.8f));
-	ridgid.setAngAccl(glm::vec3(0.0f, 0.0f, 0.0f));
-	ridgid.scale(glm::vec3(1.0f, 3.0f, 1.0f));
-	*/
+	//mass and gravity stuff
 	NegGravity ng = NegGravity();
 	Gravity g = Gravity();
 	ridgid.setMass(2.0f);
@@ -355,22 +321,6 @@ int main()
 	
 	
 	
-	/*
-	//Apply forces to particls
-	for (int i = 0; i < list.size(); i++)
-	{
-		//k
-		if (i > 0 && i < list.size() - 1)
-		{
-				list[i].addForce(&g);
-				list[i].addForce(new Drag());
-				list[i].addForce(new Hook(&list[i], &list[i + 1], 10.0f, 0.8f, 0.5f));
-				list[i].addForce(new Hook(&list[i], &list[i - 1], 10.0f, 0.8f, 0.5f));
-		}
-	}
-	glm::vec3 o = glm::vec3(-2.5, 0.0f, 2.5f);
-	glm::vec3 d = glm::vec3(5.0f, 5.0f, 5.0f);
-	*/
 	// time
 
 	double t = 0.0f;
@@ -406,11 +356,10 @@ accumalator += frame;
 // Manage interaction
 app.doMovement(dtime);
 //	SIMULATION
-
 while (accumalator >= dtime)
 {
 
-
+	//seting up basic movements
 	particle1.setAcc(gra);
 	particle1.setVel(particle1.getVel() + dtime*particle1.getAcc());
 	glm::vec3 movep = dtime*particle1.getVel();
@@ -437,7 +386,7 @@ while (accumalator >= dtime)
 	glm::vec3 move3 = dtime * ridgid3.getVel();
 	ridgid3.translate(move3);
 	accumalator -= dtime;
-
+	//integration for individula bodys
 	// integration ( rotation ) - 3D
 	ridgid.setAngVel(ridgid.getAngVel() + dtime * ridgid.getAngAcc());
 	// create skew symmetric matrix for w
@@ -471,7 +420,7 @@ while (accumalator >= dtime)
 	ridgid3.getMesh().setRotate(glm::mat4(R3));
 
 }
-
+//keypress actions
 if (glfwGetKey(app.getWindow(), GLFW_KEY_UP))
 {
 	ridgid.addForce(&ng);
@@ -482,7 +431,7 @@ if (glfwGetKey(app.getWindow(), GLFW_KEY_DOWN))
 	ridgid.addForce(&g);
 	ridgid2.addForce(&g);
 }
-
+//collision detection functions for different bodys
 		std::vector<Vertex> collidingVertices4 = Collision_Detect(particle1.getPos()[1], ridgid);
 		bool collisionDetected4 = collidingVertices4.size() > 0;
 
@@ -492,17 +441,21 @@ if (glfwGetKey(app.getWindow(), GLFW_KEY_DOWN))
 
 		std::vector<Vertex> collidingVertices3 = Collision_Detect(ridgid.getPos()[1], ridgid2);
 		bool collisionDetected3 = collidingVertices2.size() > 0;
-
+		//allowing particles to bounce off each other
 		if (PCollison(particle2, particle1))
 		{
-			ridgid.addForce(&ng);
-			ridgid2.addForce(&ng);
+			particle1.setVel(glm::vec3(-1.0));
+			particle2.setVel(glm::vec3(0.0f, 0.0f, -1.0f));
 		}
+
 		if (Collison(ridgid, ridgid2))
 		{
-			
+			/*
+			getchar();
+			*/
 			std::vector<Vertex> listofsmallest;
 			float shortest = 100.0f;
+			//for first body
 			for (Vertex v : ridgid.getMesh().getVertices())
 			{
 				v = Vertex(glm::mat3(ridgid.getMesh().getModel()) * v.getCoord() + ridgid.getPos());
@@ -518,6 +471,7 @@ if (glfwGetKey(app.getWindow(), GLFW_KEY_DOWN))
 					listofsmallest.push_back(v);
 				}
 			}
+			//for second body
 			for (Vertex v : ridgid2.getMesh().getVertices())
 			{
 				v = Vertex(glm::mat3(ridgid2.getMesh().getModel()) * v.getCoord() + ridgid2.getPos());
@@ -533,8 +487,8 @@ if (glfwGetKey(app.getWindow(), GLFW_KEY_DOWN))
 					listofsmallest.push_back(v);
 				}
 			}
+			//working out impulse and appoint
 			glm::vec3 sumofvert;
-			//for (int i = 0; i < listofsmallest.size()); i++)
 			for (Vertex v : listofsmallest)
 			{
 				sumofvert += v.getCoord();
